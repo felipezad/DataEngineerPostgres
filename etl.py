@@ -81,7 +81,8 @@ def process_log_file(cur, filepath):
             songid, artistid = -1, -1
 
         # insert songplay record
-        songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
+        rowTime = pd.to_datetime(row.ts, unit='ms')
+        songplay_data = (rowTime, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
 

@@ -55,7 +55,7 @@ CREATE TABLE IF NOT EXISTS time(
 songplay_table_create =  ("""
 CREATE TABLE IF NOT EXISTS songplays(
             songplays_id serial primary key,
-            start_time bigint NOT NULL , 
+            start_time timestamp NOT NULL , 
             user_id int NOT NULL, 
             level varchar, 
             song_id varchar NOT NULL,
