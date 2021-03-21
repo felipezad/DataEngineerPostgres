@@ -3,10 +3,11 @@ import glob
 import psycopg2
 import pandas as pd
 from sql_queries import *
-
+from sqlalchemy_schemadisplay import create_schema_graph
+from sqlalchemy import MetaData
 
 def process_song_file(cur, filepath):
-     """
+    """
     Description: This function is responsible for listing the songs in the json files,
     and then executing the ingest process for each json object according to the function
     that performs the transformation to save it to the database.
@@ -80,7 +81,7 @@ def process_log_file(cur, filepath):
             songid, artistid = -1, -1
 
         # insert songplay record
-        songplay_data = (pd.to_datetime(row.ts, unit='ms'), row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
+        songplay_data = (row.ts, row.userId, row.level, songid, artistid, row.sessionId, row.location, row.userAgent)
         cur.execute(songplay_table_insert, songplay_data)
 
 
@@ -115,6 +116,18 @@ def process_data(cur, conn, filepath, func):
         func(cur, datafile)
         conn.commit()
         print('{}/{} files processed.'.format(i, num_files))
+        
+def entityRelationDiagram():
+    """
+    Description: This function is responsible create the ER diagram and save the
+    png in the files project.
+
+    Returns:
+        None
+    """
+    graph = create_schema_graph(metadata=MetaData('postgresql://student:student@127.0.0.1/sparkifydb'))
+    graph.write_png('sparkifydb_erd.png')
+
 
 def main():
     conn = psycopg2.connect("host=127.0.0.1 dbname=sparkifydb user=student password=student")
@@ -123,6 +136,7 @@ def main():
     process_data(cur, conn, filepath='data/song_data', func=process_song_file)
     process_data(cur, conn, filepath='data/log_data', func=process_log_file)
     conn.commit()
+    entityRelationDiagram()
     conn.close()
 
 
